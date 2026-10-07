@@ -1,0 +1,21 @@
+---
+// Auto-generates a placeholder page for every nav item flagged
+// `underConstruction: true` in src/data/site.ts. To add a new tab, add a
+// nav entry there — no new file needed. When the real page is ready,
+// create src/pages/<slug>.astro and drop the flag.
+import Base from '../layouts/Base.astro';
+import UnderConstruction from '../components/UnderConstruction.astro';
+import { nav, type NavItem } from '../data/site';
+
+export function getStaticPaths() {
+  return nav
+    .filter((item) => item.underConstruction)
+    .map((item) => ({ params: { slug: item.href.replace(/^\//, '') }, props: { item } }));
+}
+
+const { item } = Astro.props as { item: NavItem };
+---
+
+<Base title={item.label}>
+  <UnderConstruction title={item.label} teaser={item.teaser} />
+</Base>

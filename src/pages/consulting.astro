@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import { portfolioUrl } from '../data/site';
+---
+
+<Base title="Consulting" description="Software consulting from Big Ol’ Bear Studios.">
+  <section class="section">
+    <div class="container narrow">
+      <p class="eyebrow">Consulting</p>
+      <h1>Software help, minus the fluff.</h1>
+      <p class="lede">
+        I build web apps, internal tools, data pipelines, and the glue in between. Small teams, clear
+        scopes, honest timelines.
+      </p>
+      <ul class="services">
+        <li>Web & full-stack development</li>
+        <li>Prototypes & MVPs</li>
+        <li>Automation & internal tooling</li>
+        <li>ETL & data pipelines</li>
+      </ul>
+      <p>Past work, résumé, and the longer story live on my portfolio.</p>
+      <div class="actions">
+        <a class="btn" href={portfolioUrl} target="_blank" rel="noopener">View my portfolio ↗</a>
+        <a class="btn btn--ghost" href="/contact">Start a conversation</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow {
+    max-width: 760px;
+  }
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+  }
+  .services li {
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    background: #fffdf8;
+    font-weight: 600;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+</style>

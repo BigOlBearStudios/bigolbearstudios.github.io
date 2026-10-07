@@ -1,0 +1,123 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Contact Us" description="Get in touch with Big Ol’ Bear Studios.">
+  <section class="section">
+    <div class="container narrow">
+      <p class="eyebrow">Contact us</p>
+      <h1>Come say hi.</h1>
+      <p class="lede">
+        Questions about a book, want $10 Adventures in your store, or have a project in mind? Prove
+        you’re not a robot and the bear will hand over the email address.
+      </p>
+
+      <form class="card check" id="human-check" novalidate>
+        <label for="answer">
+          Quick human check: <strong id="question">…</strong>
+        </label>
+        <div class="row">
+          <input id="answer" name="answer" inputmode="numeric" autocomplete="off" required />
+          <button class="btn" type="submit">Reveal email</button>
+        </div>
+        <!-- Honeypot: humans never see or fill this. -->
+        <div class="hp" aria-hidden="true">
+          <label>Leave this empty <input name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+        <p class="error" id="error" role="alert" hidden></p>
+      </form>
+
+      <div class="card revealed" id="revealed" hidden>
+        <p>Thanks, human. Drop me a line:</p>
+        <a class="btn" id="mailto" href="#">Email me</a>
+        <p class="address" id="address"></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { emailParts } from '../data/site';
+
+  const form = document.getElementById('human-check') as HTMLFormElement;
+  const questionEl = document.getElementById('question')!;
+  const errorEl = document.getElementById('error')!;
+  const revealed = document.getElementById('revealed')!;
+  const loadedAt = Date.now();
+
+  const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  let expected = 0;
+  function newQuestion() {
+    const a = 1 + Math.floor(Math.random() * 9);
+    const b = 1 + Math.floor(Math.random() * 9);
+    expected = a + b;
+    questionEl.textContent = `what is ${words[a]} plus ${words[b]}?`;
+  }
+  newQuestion();
+
+  const rev = (s: string) => s.split('').reverse().join('');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const answer = Number(String(data.get('answer')).trim());
+    const tooFast = Date.now() - loadedAt < 1500;
+
+    if (data.get('website') || tooFast || answer !== expected) {
+      errorEl.textContent = 'Hmm, that’s not quite it. Try this one instead.';
+      errorEl.hidden = false;
+      form.reset();
+      newQuestion();
+      return;
+    }
+
+    const email = `${rev(emailParts[1])}@${rev(emailParts[0])}`;
+    const link = document.getElementById('mailto') as HTMLAnchorElement;
+    link.href = `mailto:${email}?subject=${encodeURIComponent('Hello from the website')}`;
+    document.getElementById('address')!.textContent = email;
+    form.hidden = true;
+    revealed.hidden = false;
+    link.focus();
+  });
+</script>
+
+<style>
+  .narrow {
+    max-width: 680px;
+  }
+  .check,
+  .revealed {
+    margin-top: 2rem;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  .row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  input {
+    flex: 1 1 140px;
+    font: inherit;
+    padding: 0.7rem 0.9rem;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--paper);
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .error {
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0.9rem 0 0;
+  }
+  .address {
+    margin: 1rem 0 0;
+    font-family: ui-monospace, monospace;
+    color: var(--ink-soft);
+  }
+</style>

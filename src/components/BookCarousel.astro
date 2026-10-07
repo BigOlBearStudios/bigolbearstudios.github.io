@@ -1,0 +1,141 @@
+---
+import { books } from '../data/site';
+import BookCover from './BookCover.astro';
+---
+
+<div class="carousel" data-carousel>
+  <button class="nav prev" data-prev aria-label="Previous books">‹</button>
+  <ul class="track" data-track>
+    {
+      books.map((book) => (
+        <li class="slide">
+          <a class="book" href={`/ten-dollar-adventures/${book.slug}`}>
+            <div class="art">
+              <BookCover book={book} />
+              <div class="overlay">
+                <strong>{book.title}</strong>
+                <span>Just $10 at the stockists below. Ask at the counter, or tap for the full details.</span>
+                <span class="cta">How to buy →</span>
+              </div>
+            </div>
+            <span class="caption">{book.title}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <button class="nav next" data-next aria-label="Next books">›</button>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const step = () => (track.querySelector('.slide') as HTMLElement).offsetWidth + 24;
+    root.querySelector('[data-prev]')!.addEventListener('click', () =>
+      track.scrollBy({ left: -step(), behavior: 'smooth' }),
+    );
+    root.querySelector('[data-next]')!.addEventListener('click', () =>
+      track.scrollBy({ left: step(), behavior: 'smooth' }),
+    );
+  });
+</script>
+
+<style>
+  .carousel {
+    position: relative;
+  }
+  .track {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0.5rem 1.5rem;
+    scrollbar-width: thin;
+  }
+  .slide {
+    flex: 0 0 clamp(170px, 22vw, 230px);
+    scroll-snap-align: start;
+  }
+  .book {
+    display: block;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .art {
+    position: relative;
+  }
+  .art :global(.cover) {
+    transition: filter 0.2s ease;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    background: rgb(40 38 36 / 0.78);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.1rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .overlay strong {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+  }
+  .cta {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .book:hover .overlay,
+  .book:focus-visible .overlay {
+    opacity: 1;
+  }
+  .book:hover :global(.cover),
+  .book:focus-visible :global(.cover) {
+    filter: grayscale(1);
+  }
+  .caption {
+    display: block;
+    margin-top: 0.9rem;
+    font-weight: 600;
+  }
+
+  .nav {
+    position: absolute;
+    top: 40%;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .prev {
+    left: -14px;
+  }
+  .next {
+    right: -14px;
+  }
+  @media (hover: none) {
+    .nav {
+      display: none;
+    }
+  }
+  @media (hover: hover) {
+    .track {
+      scrollbar-width: none;
+    }
+  }
+</style>

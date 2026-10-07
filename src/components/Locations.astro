@@ -1,0 +1,121 @@
+---
+import { locations, directionsUrl, locationsUnderConstruction } from '../data/site';
+
+// While taped off, render dummy cards so real store details aren't in the page source.
+const shown = locationsUnderConstruction
+  ? locations.map(() => ({
+      name: 'Your Local Game Store',
+      city: 'Colorado',
+      address: '123 Main St, Somewhere, CO 80000',
+      hours: [
+        { days: 'Mon – Fri', time: '10am – 10pm' },
+        { days: 'Sat – Sun', time: '10am – 8pm' },
+      ],
+      note: 'Details coming soon.',
+    }))
+  : locations;
+---
+
+<div class:list={['wrap', { taped: locationsUnderConstruction }]}>
+<div class="grid" inert={locationsUnderConstruction} aria-hidden={locationsUnderConstruction ? 'true' : undefined}>
+  {
+    shown.map((loc) => (
+      <article class="card">
+        <p class="eyebrow">{loc.city}</p>
+        <h3>{loc.name}</h3>
+        <address>{loc.address}</address>
+        <dl>
+          {loc.hours.map((h) => (
+            <div>
+              <dt>{h.days}</dt>
+              <dd>{h.time}</dd>
+            </div>
+          ))}
+        </dl>
+        {loc.note && <p class="note">{loc.note}</p>}
+        <a class="btn" href={directionsUrl(loc.address)} target="_blank" rel="noopener">
+          Get directions ↗
+        </a>
+      </article>
+    ))
+  }
+</div>
+{
+  locationsUnderConstruction && (
+    <div class="tape-layer" role="note">
+      <span class="tape t1">Under construction</span>
+      <span class="tape t2">Stockists coming soon</span>
+    </div>
+  )
+}
+</div>
+
+<style>
+  .wrap {
+    position: relative;
+  }
+  .taped .grid {
+    filter: blur(6px) grayscale(1);
+    opacity: 0.55;
+    user-select: none;
+    pointer-events: none;
+  }
+  .tape-layer {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .tape {
+    grid-area: 1 / 1;
+    width: 140%;
+    padding: 0.7rem 0;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1rem, 2.4vw, 1.5rem);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: repeating-linear-gradient(-45deg, #f2c230 0 28px, #e8b51f 28px 56px);
+    border-block: 3px solid var(--ink);
+    box-shadow: 0 4px 0 rgb(0 0 0 / 0.15);
+  }
+  .t1 {
+    transform: rotate(-6deg);
+  }
+  .t2 {
+    transform: rotate(5deg) translateY(4.5rem);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.75rem;
+  }
+  address {
+    font-style: normal;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+  }
+  dl {
+    margin: 0 0 1rem;
+    border-top: 1px dashed var(--line);
+  }
+  dl div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin: 0;
+  }
+  .note {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+</style>

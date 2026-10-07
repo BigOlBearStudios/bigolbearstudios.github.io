@@ -1,0 +1,81 @@
+---
+import type { Book } from '../data/site';
+
+interface Props {
+  book: Book;
+  size?: 'sm' | 'lg';
+}
+
+const { book, size = 'sm' } = Astro.props;
+---
+
+{
+  book.cover ? (
+    <img class:list={['cover', size]} src={book.cover} alt={`${book.title} cover`} />
+  ) : (
+    <div class:list={['cover', 'placeholder', size]} style={`--c: ${book.color}`} role="img" aria-label={`${book.title} cover`}>
+      <span class="series">$10 Adventures</span>
+      <span class="title">{book.title}</span>
+      {book.workingTitle && <span class="wip">Title under construction</span>}
+      <img src="/images/logo-mark.png" alt="" class="mark" />
+    </div>
+  )
+}
+
+<style>
+  .cover {
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .placeholder {
+    background:
+      linear-gradient(160deg, rgb(255 255 255 / 0.12), transparent 55%),
+      var(--c);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8% 9%;
+    font-family: var(--font-display);
+  }
+  .series {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    opacity: 0.85;
+  }
+  .title {
+    font-size: 1.5em;
+    font-weight: 700;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+  .wip {
+    align-self: flex-start;
+    margin-top: -0.5em;
+    padding: 0.15em 0.6em;
+    font-family: var(--font-body);
+    font-size: 0.6em;
+    font-weight: 600;
+    color: var(--ink);
+    background: repeating-linear-gradient(-45deg, #f2c230 0 8px, #e0b020 8px 16px);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+  }
+  .mark {
+    width: 55%;
+    align-self: flex-end;
+    filter: invert(1);
+    opacity: 0.8;
+  }
+  .lg {
+    font-size: 1.5rem;
+  }
+  .sm {
+    font-size: 1rem;
+  }
+</style>
