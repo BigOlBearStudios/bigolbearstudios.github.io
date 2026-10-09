@@ -1,5 +1,5 @@
 ---
-import { nav } from '../data/site';
+import { nav, footerNav } from '../data/site';
 const year = new Date().getFullYear();
 ---
 
@@ -7,7 +7,7 @@ const year = new Date().getFullYear();
   <div class="container inner">
     <img src="/images/logo.png" alt="Big Ol’ Bear Studios" width="180" height="124" />
     <ul>
-      {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      {[...nav, ...footerNav].map((item) => <li><a href={item.href}>{item.label}</a></li>)}
     </ul>
     <p class="fine">© {year} Big Ol’ Bear Studios · Made in Colorado</p>
   </div>

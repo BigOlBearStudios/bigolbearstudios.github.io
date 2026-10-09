@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="AI Use Disclosure" description="How Big Ol’ Bear Studios does (and doesn’t) use AI.">
+  <section class="section">
+    <div class="container narrow">
+      <h1>AI use disclosure</h1>
+      <p class="lede">
+        How generative AI is used in my process and my works, and where it will never be used.
+      </p>
+
+      <h2 id="ten-dollar-adventures">$10 Adventures</h2>
+      <p>
+        Big Ol’ Bear Studios is committed to keeping creative works done by real humans. That being
+        said, as a software engineer, I am used to having AI in my workflow, and I wanted to disclose
+        how it may be used in any books produced by Big Ol’ Bear Studios. AI will never willingly be
+        a part of the product you purchase. All text, artwork, page layout, etc. will all be done by
+        hand by real people. AI is used to quiz me on my ideas, help me flesh out concepts I
+        currently have, and build into the idea that becomes the book.
+      </p>
+      <figure>
+        <img
+          class="diagram"
+          src="/images/ai-process.png"
+          alt="The $10 Adventures process: Inspiration, Pre-ideation, Ideation, Writing, Review, then Art & assembly. AI assistance, used for forming initial thoughts, feeds into the Pre-ideation step only."
+          width="1378"
+          height="407"
+          loading="lazy"
+        />
+        <figcaption>AI helps form initial thoughts during pre-ideation, and nowhere else.</figcaption>
+      </figure>
+      <p>
+        Frankly, these are fun projects to work on, and handing it off to a computer defeats the
+        purpose of these creative works that I love to work on so dearly.
+      </p>
+      <p>AI can also be used as part of writing copy for the website, or maintaining the website.</p>
+
+      <h2 id="consulting">Consulting</h2>
+      <p>
+        Whether to use AI is something we talk about while clarifying your project. I’m confident
+        and happy to build with it or without it. It’s your call.
+      </p>
+      <p>
+        Just know the choice affects turnaround time and cost, so we’ll settle it up front and
+        you’ll see that reflected in the estimate.
+      </p>
+      <div class="actions">
+        <a class="btn" href="/contact">Start a conversation</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow {
+    max-width: 760px;
+  }
+  h2 {
+    margin-top: 3.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  figure {
+    margin: 2rem 0;
+  }
+  .diagram {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: 3px 3px 0 var(--accent);
+    background: #fff;
+  }
+  figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .actions {
+    margin-top: 1.5rem;
+  }
+</style>

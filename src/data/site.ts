@@ -28,6 +28,9 @@ export const nav: NavItem[] = [
   { label: 'Contact Us', href: '/contact' },
 ];
 
+// Extra links that only appear in the footer, after the main nav.
+export const footerNav: NavItem[] = [{ label: 'AI Use Disclosure', href: '/ai-use-disclosure' }];
+
 export const portfolioUrl = 'https://threehoolagins.github.io';
 
 // The contact email is stored split + reversed so it isn't sitting in the
