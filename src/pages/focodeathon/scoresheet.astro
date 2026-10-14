@@ -1,0 +1,238 @@
+---
+// Printable judging scoresheet, one per team. Standalone (no site header or
+// footer) so it prints cleanly on a single letter-size page.
+import '../../styles/global.css';
+import { edition, judging, maxPoints } from '../../data/focodeathon';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Scoresheet · Focodeathon {edition}</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Zilla+Slab:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="toolbar">
+      <a href="/focodeathon">← Back to Focodeathon</a>
+      <button class="btn" type="button" onclick="window.print()">Print</button>
+    </div>
+
+    <main class="sheet">
+      <header class="title">
+        <img src="/images/events/focodeathon-orange.svg" alt="Focodeathon" />
+        <!-- Drawn in the same layered style as the logo's orange letters. -->
+        <svg class="edition" viewBox="-12 -92.8 114 115" role="img" aria-label={String(edition)}>
+          <g font-family="'Arial Black', 'Inter', sans-serif" font-weight="900" font-style="italic" font-size="96" stroke-linejoin="round">
+            <text x="8" y="0" fill="#000" stroke="#000" stroke-width="36">{edition}</text>
+            <text x="8" y="0" fill="#fff" stroke="#fff" stroke-width="20">{edition}</text>
+            <text x="8" y="0" fill="#FFAE45" stroke="#FFAE45" stroke-width="6">{edition}</text>
+            <text x="8" y="0" fill="#F26B12" stroke="#F26B12" stroke-width="6" transform="translate(3.5 4.2)">{edition}</text>
+          </g>
+        </svg>
+      </header>
+
+      <p class="team">Team name <span class="blank"></span></p>
+      <p class="team team--repo">Git repo link <span class="blank"></span></p>
+
+      <table class="scoring">
+        <thead>
+          <tr>
+            <th scope="col">Criteria</th>
+            <th scope="col" class="pts">Score</th>
+          </tr>
+        </thead>
+        {
+          judging.map((c) => (
+            <tbody style={`--cat: ${c.color}`}>
+              <tr class="cat-row">
+                <th scope="rowgroup">{c.name}</th>
+                <td class="pts">
+                  <span class="fill" /> / {c.total}
+                </td>
+              </tr>
+              {c.items.map((i) => (
+                <tr>
+                  <td>{i.label}</td>
+                  <td class="pts">
+                    <span class="fill" /> / {i.points}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ))
+        }
+        <tfoot>
+          <tr>
+            <th scope="row">Total</th>
+            <td class="pts">
+              <span class="fill fill--big"></span> / {maxPoints}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p class="notes-label">Notes</p>
+      <div class="notes"></div>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    background: var(--paper-2);
+  }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(100% - 2rem, 8.5in);
+    margin: 1.5rem auto 1rem;
+  }
+  .sheet {
+    width: min(100% - 2rem, 8.5in);
+    margin: 0 auto 3rem;
+    padding: 0.6in;
+    background: #fff;
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .title img {
+    height: 72px;
+    width: auto;
+  }
+  .edition {
+    height: 72px;
+    width: auto;
+  }
+  .team {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1.75rem;
+  }
+  .team:has(+ .team) {
+    margin-bottom: 1rem;
+  }
+  .team--repo {
+    font-size: 1.1rem;
+  }
+  .blank {
+    flex: 1;
+    border-bottom: 2px solid var(--ink);
+    height: 1.6rem;
+  }
+  .scoring {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid var(--ink);
+  }
+  .scoring thead th {
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    text-align: left;
+    padding: 0.6rem 1rem;
+  }
+  .scoring td,
+  .scoring tbody th,
+  .scoring tfoot th {
+    padding: 0.6rem 1rem;
+    text-align: left;
+  }
+  .scoring tbody td:first-child {
+    padding-left: 1.6rem;
+    border-left: 6px solid var(--cat);
+  }
+  .scoring tbody tr + tr td {
+    border-top: 1px dashed var(--line);
+  }
+  .scoring .cat-row th,
+  .scoring .cat-row td {
+    background: var(--cat);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    border-top: 2px solid var(--ink);
+  }
+  .scoring tfoot th,
+  .scoring tfoot td {
+    border-top: 2px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+  }
+  .pts {
+    text-align: right !important;
+    width: 1%;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  .fill {
+    display: inline-block;
+    width: 2.5rem;
+    border-bottom: 2px solid currentColor;
+    vertical-align: baseline;
+  }
+  .fill--big {
+    width: 3.5rem;
+  }
+  .notes-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 1.75rem 0 0.5rem;
+  }
+  .notes {
+    height: 0.7in;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+  }
+
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+  @media print {
+    body {
+      background: #fff;
+      display: block;
+      min-height: 0;
+    }
+    .toolbar {
+      display: none;
+    }
+    .sheet {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      border: none;
+      box-shadow: none;
+    }
+    /* Keep the colored category rows when printing. */
+    .scoring {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+</style>

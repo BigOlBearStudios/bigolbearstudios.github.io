@@ -1,0 +1,462 @@
+---
+// Printable certificate (letter, landscape) in the poster's terminal style.
+// Hidden: not linked anywhere and marked noindex. The toolbar switches between
+// participation and 1st/2nd/3rd place; ?place=1|2|3 in the URL also works.
+import '../../styles/global.css';
+import PixelSprite from '../../components/PixelSprite.astro';
+import { date, edition, theme, venue } from '../../data/focodeathon';
+import { sprites } from '../../data/sprites';
+
+// Each variant is rendered once and toggled on screen; only the chosen one prints.
+const variants = [
+  {
+    place: 'participation',
+    label: 'Participation',
+    title: 'Certificate of Participation',
+    banner: 'GAME COMPLETE',
+    line: 'played through',
+    color: '#86DE4A',
+    sprite: sprites.ship,
+  },
+  {
+    place: '1',
+    label: '1st place',
+    title: '1st Place',
+    banner: 'NEW HIGH SCORE!',
+    line: 'took 1st place at',
+    color: '#F2C230',
+    sprite: sprites.trophy,
+  },
+  {
+    place: '2',
+    label: '2nd place',
+    title: '2nd Place',
+    banner: 'HIGH SCORE!',
+    line: 'took 2nd place at',
+    color: '#C9C4BB',
+    sprite: sprites.trophy,
+  },
+  {
+    place: '3',
+    label: '3rd place',
+    title: '3rd Place',
+    banner: 'HIGH SCORE!',
+    line: 'took 3rd place at',
+    color: '#E0904A',
+    sprite: sprites.trophy,
+  },
+];
+
+const formation = [
+  { sprite: sprites.squid, color: '#86DE4A' },
+  { sprite: sprites.crab, color: '#F26B12' },
+  { sprite: sprites.octopus, color: '#5E8EF7' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Certificate · Focodeathon {edition}</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="toolbar">
+      <a href="/focodeathon">← Back to Focodeathon</a>
+      <fieldset class="places">
+        <legend class="visually-hidden">Certificate type</legend>
+        {
+          variants.map((v, i) => (
+            <label>
+              <input type="radio" name="place" value={v.place} checked={i === 0} />
+              {v.label}
+            </label>
+          ))
+        }
+      </fieldset>
+      <button class="btn" type="button" onclick="window.print()">Print</button>
+    </div>
+    <p class="tip">Type the team name right on the certificate, or leave it blank to write in by hand.</p>
+
+    <main class="cert" data-place="participation">
+      <div class="titlebar">
+        <span class="dots"><i></i><i></i><i></i></span>
+        <span>player1@fort-collins: ~/focodeathon/certificates</span>
+        <span class="hud">FOCODEATHON {edition}</span>
+      </div>
+
+      <div class="screen">
+        <div class="top">
+          <div class="formation">
+            {formation.map((f) => <PixelSprite sprite={f.sprite} color={f.color} pixel="0.04in" />)}
+          </div>
+          <img class="logo" src="/images/events/focodeathon-orange.svg" alt="Focodeathon" />
+          <div class="formation">
+            {[...formation].reverse().map((f) => <PixelSprite sprite={f.sprite} color={f.color} pixel="0.04in" />)}
+          </div>
+        </div>
+
+        {
+          variants.map((v) => (
+            <section class="variant" data-variant={v.place} style={`--accent: ${v.color}`}>
+              <p class="banner">{v.banner}</p>
+              <div class="headline">
+                <PixelSprite sprite={v.sprite} color={v.color} pixel="0.07in" />
+                <h1>{v.title}</h1>
+                <PixelSprite sprite={v.sprite} color={v.color} pixel="0.07in" />
+              </div>
+              <p class="presented">This certifies that team</p>
+              <input class="field field--team" type="text" aria-label="Team name" />
+              <p class="presented">
+                {v.line} <strong>Focodeathon {edition}</strong> in Fort Collins.
+              </p>
+            </section>
+          ))
+        }
+
+        <div class="details">
+          <p><span class="k">date:</span> {date}</p>
+          <p class="theme">
+            <span class="k">theme:</span>
+            <span class="theme-name">{theme}</span>
+          </p>
+          <p><span class="k">venue:</span> {venue.name}</p>
+        </div>
+
+        <div class="ground">
+          <div class="player">
+            <PixelSprite sprite={sprites.ship} color="#86DE4A" pixel="0.035in" />
+            <p class="press">THANKS FOR PLAYING<span class="cursor">█</span></p>
+          </div>
+          <div class="studio">
+            <span class="k">presented by</span>
+            <img src="/images/logo.png" alt="Big Ol’ Bear Studios" />
+          </div>
+          <div class="sign">
+            <span class="line"></span>
+            <span class="k">host · Big Ol’ Bear Studios</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const cert = document.querySelector<HTMLElement>('.cert')!;
+      const radios = document.querySelectorAll<HTMLInputElement>('input[name="place"]');
+
+      const show = (place: string) => {
+        cert.dataset.place = place;
+        // Keep the typed team name when switching certificate types.
+        const name = document.querySelector<HTMLInputElement>('.variant:not([hidden]) .field--team')?.value ?? '';
+        document.querySelectorAll<HTMLElement>('.variant').forEach((v) => {
+          v.hidden = v.dataset.variant !== place;
+          if (!v.hidden) v.querySelector<HTMLInputElement>('.field--team')!.value = name;
+        });
+        radios.forEach((r) => (r.checked = r.value === place));
+      };
+
+      radios.forEach((r) => r.addEventListener('change', () => show(r.value)));
+      const fromUrl = new URLSearchParams(location.search).get('place');
+      show(['1', '2', '3'].includes(fromUrl ?? '') ? fromUrl! : 'participation');
+    </script>
+  </body>
+</html>
+
+<style>
+  :root {
+    --term: #0e110d;
+    --term-2: #171b16;
+    --green: #86de4a;
+    --orange: #f26b12;
+    --dim: #8a9a86;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --arcade: 'Press Start 2P', var(--mono);
+  }
+  body {
+    background: var(--paper-2);
+  }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: min(100% - 2rem, 11in);
+    margin: 1.5rem auto 0.5rem;
+  }
+  .places {
+    display: flex;
+    gap: 1rem;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-weight: 600;
+  }
+  .places label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+  }
+  .tip {
+    width: min(100% - 2rem, 11in);
+    margin: 0 auto 1rem;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+
+  /* Drawn at real letter-landscape size so screen and print match. */
+  .cert {
+    width: 11in;
+    height: 8.5in;
+    margin: 0 auto 3rem;
+    padding: 0.3in;
+    background: #fff;
+    box-shadow: 5px 5px 0 var(--ink);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--mono);
+    color: #e8efe4;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0.9rem;
+    background: #2a2f29;
+    border: 3px solid var(--ink);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    font-size: 0.8rem;
+    color: #c9d3c5;
+  }
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dots i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--orange);
+  }
+  .dots i:nth-child(2) {
+    background: #ffae45;
+  }
+  .dots i:nth-child(3) {
+    background: var(--green);
+  }
+  .hud {
+    font-family: var(--arcade);
+    font-size: 0.6rem;
+    color: var(--green);
+  }
+  .screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.16in;
+    padding: 0.25in 0.5in 0.2in;
+    text-align: center;
+    background:
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px),
+      var(--term);
+    border: 3px solid var(--ink);
+    border-radius: 0 0 12px 12px;
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4in;
+  }
+  .formation {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.18in;
+  }
+  .logo {
+    width: 3.4in;
+  }
+  .variant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1in;
+    width: 100%;
+  }
+  .variant[hidden] {
+    display: none;
+  }
+  .banner {
+    margin: 0;
+    font-family: var(--arcade);
+    font-size: 0.15in;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .headline {
+    display: flex;
+    align-items: center;
+    gap: 0.3in;
+  }
+  .headline h1 {
+    margin: 0;
+    font-family: var(--arcade);
+    font-size: 0.36in;
+    line-height: 1.3;
+    color: #fff;
+    text-shadow: 4px 4px 0 var(--accent);
+  }
+  .presented {
+    margin: 0;
+    font-size: 1rem;
+    color: #c9d3c5;
+  }
+  .presented strong {
+    color: var(--orange);
+  }
+  .field {
+    font: inherit;
+    color: #fff;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid var(--accent, var(--green));
+    text-align: center;
+    outline: none;
+  }
+  .field:focus-visible {
+    background: rgb(255 255 255 / 0.05);
+  }
+  .field--team {
+    width: 6.5in;
+    padding: 0.05in 0;
+    font-family: var(--arcade);
+    font-size: 0.3in;
+  }
+  .details {
+    display: flex;
+    justify-content: center;
+    gap: 0.45in;
+    margin-top: 0.05in;
+    padding: 0.1in 0.25in;
+    border: 2px solid #2f382d;
+    border-radius: 6px;
+    background: var(--term-2);
+    font-size: 0.85rem;
+  }
+  .details p {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .k {
+    color: var(--dim);
+    font-weight: 700;
+  }
+  .theme-name {
+    color: var(--orange);
+    font-weight: 700;
+  }
+  .ground {
+    margin-top: auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 0.3in;
+    padding-top: 0.12in;
+    border-top: 2px solid var(--green);
+  }
+  .player {
+    justify-self: start;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.18in;
+  }
+  .studio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.04in;
+    font-size: 0.7rem;
+  }
+  /* The studio logo is black line art; flip it to white for the dark screen. */
+  .studio img {
+    width: 1.5in;
+    filter: invert(1);
+  }
+  .press {
+    margin: 0;
+    font-family: var(--arcade);
+    font-size: 0.13in;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .cursor {
+    animation: blink 1s steps(1) infinite;
+  }
+  .sign {
+    justify-self: end;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.05in;
+    font-size: 0.7rem;
+  }
+  .sign .line {
+    width: 2.4in;
+    border-bottom: 2px solid #c9d3c5;
+    height: 0.35in;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @page {
+    size: letter landscape;
+    margin: 0.3in;
+  }
+  @media print {
+    html,
+    body {
+      margin: 0;
+      background: #fff;
+      display: block;
+      min-height: 0;
+      height: auto;
+    }
+    .toolbar,
+    .tip {
+      display: none;
+    }
+    .cert {
+      width: 100%;
+      height: 7.75in;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      break-inside: avoid;
+      box-shadow: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .cursor {
+      animation: none;
+    }
+  }
+</style>

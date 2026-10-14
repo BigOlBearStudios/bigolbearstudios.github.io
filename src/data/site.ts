@@ -18,13 +18,8 @@ export interface NavItem {
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: '$10 Adventures', href: '/ten-dollar-adventures' },
+  { label: 'Focodeathon', href: '/focodeathon' },
   { label: 'Consulting', href: '/consulting' },
-  {
-    label: 'FoCodeathon',
-    href: '/focodeathon',
-    underConstruction: true,
-    teaser: 'A Fort Collins build-a-thon is brewing. Bring a laptop and a snack.',
-  },
   { label: 'Contact Us', href: '/contact' },
 ];
 

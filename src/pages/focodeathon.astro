@@ -1,0 +1,470 @@
+---
+import Base from '../layouts/Base.astro';
+import { directionsUrl } from '../data/site';
+import { date, hours, venue, schedule, rules, judging, maxPoints } from '../data/focodeathon';
+
+// Covers the podium with "under construction" tape until there are real
+// winners. Set to false and fill in `winners` to show them.
+const winnersUnderConstruction = true;
+
+// Listed in podium order: 2nd, 1st, 3rd.
+const winners = [
+  { place: 2, project: 'Project Name', team: 'Team Name', url: '#' },
+  { place: 1, project: 'Project Name', team: 'Team Name', url: '#' },
+  { place: 3, project: 'Project Name', team: 'Team Name', url: '#' },
+];
+
+const placeLabel = { 1: '1st', 2: '2nd', 3: '3rd' } as Record<number, string>;
+---
+
+<Base title="Focodeathon" description="Focodeathon — a one-day Fort Collins codeathon at the Harmony Library.">
+  <section class="section">
+    <div class="container narrow">
+      <img class="logo" src="/images/events/focodeathon-orange.svg" alt="Focodeathon" />
+
+      <p class="eyebrow">Fort Collins · {date}</p>
+      <h1>Build something in a day.</h1>
+      <p class="theme"><span>Theme:</span> Will be announced at the event</p>
+      <p class="lede">
+        Focodeathon is a one-day build-a-thon for Fort Collins coders of every level. Show up, form a
+        team, and ship a project before the cutoff. Bring a laptop and a snack.
+      </p>
+
+      <div class="card venue">
+        <p class="eyebrow">When</p>
+        <h3>{date}</h3>
+        <p class="detail">{hours}</p>
+        <p class="eyebrow">Where</p>
+        <h3>{venue.name}</h3>
+        <address>{venue.address}</address>
+        <a class="btn" href={directionsUrl(venue.address)} target="_blank" rel="noopener">
+          Get directions ↗
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container narrow">
+      <p class="eyebrow">Schedule</p>
+      <h2>How the day runs</h2>
+      <div class="table-wrap">
+        <table class="schedule">
+          <thead>
+            <tr>
+              <th scope="col">Time</th>
+              <th scope="col">What’s happening</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              schedule.map((s) => (
+                <tr>
+                  <td class="time">{s.time}</td>
+                  <td>
+                    <strong>{s.event}</strong>
+                    <span class="note">{s.note}</span>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <p class="eyebrow">Rules</p>
+      <h2>Keep it fair, keep it fun</h2>
+      <ol class="rules">
+        {rules.map((r) => <li>{r}</li>)}
+      </ol>
+      <div class="print-link">
+        <a class="btn btn--ghost" href="/focodeathon/scoresheet" target="_blank" rel="noopener">
+          Printable scoresheet ↗
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container narrow">
+      <p class="eyebrow">Judging</p>
+      <h2>How projects are scored</h2>
+      <p class="lede">
+        Every project is scored out of {maxPoints} points across {judging.length} categories.
+      </p>
+
+      <div class="score-bar" aria-hidden="true">
+        {
+          judging.map((c) => (
+            <div class="score-seg" style={`flex: ${c.total}; --cat: ${c.color}`}>
+              <span>{c.name}</span>
+              <strong>{c.total} pts</strong>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="table-wrap">
+        <table class="scoring">
+          <thead>
+            <tr>
+              <th scope="col">Criteria</th>
+              <th scope="col" class="pts">Points</th>
+            </tr>
+          </thead>
+          {
+            judging.map((c) => (
+              <tbody style={`--cat: ${c.color}`}>
+                <tr class="cat-row">
+                  <th scope="rowgroup">{c.name}</th>
+                  <td class="pts">{c.total}</td>
+                </tr>
+                {c.items.map((i) => (
+                  <tr>
+                    <td>{i.label}</td>
+                    <td class="pts">{i.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            ))
+          }
+          <tfoot>
+            <tr>
+              <th scope="row">Total</th>
+              <td class="pts">{maxPoints}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <p class="eyebrow">Recent winners</p>
+      <h2>Top Projects of last Focodeathon</h2>
+
+      <div class:list={['podium-wrap', { taped: winnersUnderConstruction }]}>
+        <ol
+          class="podium"
+          inert={winnersUnderConstruction}
+          aria-hidden={winnersUnderConstruction ? 'true' : undefined}
+        >
+          {
+            winners.map((w) => (
+              <li class={`step step--${w.place}`}>
+                <div class="entry">
+                  <strong class="project">{w.project}</strong>
+                  <span class="team">{w.team}</span>
+                  <a href={w.url} target="_blank" rel="noopener">
+                    View project ↗
+                  </a>
+                </div>
+                <div class="block">{placeLabel[w.place]}</div>
+              </li>
+            ))
+          }
+        </ol>
+        {
+          winnersUnderConstruction && (
+            <div class="tape-layer" role="note">
+              <span class="tape t1">Under construction</span>
+              <span class="tape t2">Winners coming soon</span>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow {
+    max-width: 760px;
+  }
+  .logo {
+    width: min(100%, 520px);
+    margin: 0 auto 2.5rem;
+  }
+  .theme {
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    padding: 0.4rem 0.9rem;
+    border: 2px dashed var(--ink);
+    border-radius: var(--radius);
+    background: #fffdf8;
+    font-weight: 600;
+  }
+  .theme span {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .rules {
+    list-style: none;
+    counter-reset: rule;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .rules li {
+    counter-increment: rule;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    background: #fffdf8;
+    box-shadow: 5px 5px 0 var(--ink);
+    font-weight: 600;
+  }
+  .rules li::before {
+    content: counter(rule);
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+  }
+  .print-link {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.75rem;
+  }
+  .venue {
+    margin-top: 2rem;
+  }
+  .detail {
+    color: var(--ink-soft);
+    margin-bottom: 1.25rem;
+  }
+  address {
+    font-style: normal;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+  }
+  .table-wrap {
+    margin-top: 1.5rem;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: 5px 5px 0 var(--ink);
+    overflow: hidden;
+    background: #fffdf8;
+  }
+  .schedule {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .schedule th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    text-align: left;
+    padding: 0.75rem 1.1rem;
+  }
+  .schedule td {
+    padding: 0.85rem 1.1rem;
+    border-top: 1px dashed var(--line);
+    vertical-align: top;
+  }
+  .schedule tbody tr:first-child td {
+    border-top: none;
+  }
+  .schedule tbody tr:nth-child(even) {
+    background: var(--paper);
+  }
+  .time {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    width: 1%;
+  }
+  .score-bar {
+    display: flex;
+    gap: 4px;
+    margin: 1.5rem 0;
+  }
+  .score-seg {
+    background: var(--cat);
+    color: #fff;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.75rem;
+    min-width: 0;
+    line-height: 1.25;
+  }
+  .score-seg span {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .score-seg strong {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+  }
+  .scoring {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .scoring thead th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    text-align: left;
+    padding: 0.75rem 1.1rem;
+  }
+  .scoring td,
+  .scoring tbody th,
+  .scoring tfoot th {
+    padding: 0.6rem 1.1rem;
+    text-align: left;
+  }
+  .scoring tbody td:first-child {
+    padding-left: 1.75rem;
+    border-left: 6px solid var(--cat);
+  }
+  .scoring tbody tr + tr td {
+    border-top: 1px dashed var(--line);
+  }
+  .scoring .cat-row th,
+  .scoring .cat-row td {
+    background: var(--cat);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    border-top: 2px solid var(--ink);
+  }
+  .scoring tfoot th,
+  .scoring tfoot td {
+    border-top: 2px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    background: var(--paper-2);
+  }
+  .pts {
+    text-align: right !important;
+    width: 1%;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  .podium-wrap {
+    position: relative;
+    margin-top: 1.5rem;
+  }
+  .taped .podium {
+    filter: blur(6px) grayscale(1);
+    opacity: 0.55;
+    user-select: none;
+    pointer-events: none;
+  }
+  .podium {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: end;
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    min-width: 0;
+  }
+  .entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-bottom: 0.75rem;
+  }
+  .project {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+  }
+  .team {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+  .entry a {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .block {
+    display: grid;
+    place-items: start center;
+    padding-top: 0.75rem;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: 5px 5px 0 var(--ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--ink);
+  }
+  .step--1 .block {
+    height: 11rem;
+    background: #f2c230;
+  }
+  .step--2 .block {
+    height: 8rem;
+    background: #c9c4bb;
+  }
+  .step--3 .block {
+    height: 6rem;
+    background: #c8862a;
+  }
+  .tape-layer {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .tape {
+    grid-area: 1 / 1;
+    width: 140%;
+    padding: 0.7rem 0;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1rem, 2.4vw, 1.5rem);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: repeating-linear-gradient(-45deg, #f2c230 0 28px, #e8b51f 28px 56px);
+    border-block: 3px solid var(--ink);
+    box-shadow: 0 4px 0 rgb(0 0 0 / 0.15);
+  }
+  .t1 {
+    transform: rotate(-6deg);
+  }
+  .t2 {
+    transform: rotate(5deg) translateY(4.5rem);
+  }
+  .note {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+</style>

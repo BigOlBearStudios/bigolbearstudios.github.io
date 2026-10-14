@@ -1,0 +1,442 @@
+---
+// Printable event poster (letter size). Hidden: not linked anywhere and
+// marked noindex. The arcade/terminal styling hints at the theme without
+// giving it away.
+import '../../styles/global.css';
+import PixelSprite from '../../components/PixelSprite.astro';
+import { date, hours, venue, schedule, judging, maxPoints } from '../../data/focodeathon';
+import { sprites } from '../../data/sprites';
+
+// QR codes are pre-generated SVGs in public/images/events.
+const links = [
+  { label: 'info', text: 'bigolbearstudios.com/focodeathon', qr: '/images/events/focodeathon-qr-site.svg' },
+  { label: 'discord', text: 'discord.gg/CFp6bQr4Kr', qr: '/images/events/focodeathon-qr-discord.svg' },
+];
+
+// One row of the invader formation, alternating the logo colors.
+const formation = [
+  { sprite: sprites.squid, color: '#86DE4A' },
+  { sprite: sprites.crab, color: '#F26B12' },
+  { sprite: sprites.octopus, color: '#5E8EF7' },
+  { sprite: sprites.crab, color: '#F26B12' },
+  { sprite: sprites.squid, color: '#86DE4A' },
+];
+
+// Times like "9:30 AM" → "09:30" so the schedule lines up like terminal output.
+const clock = (t: string) => {
+  const [hm, ampm] = t.split(' ');
+  let [h, m] = hm.split(':').map(Number);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Poster · Focodeathon</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="toolbar">
+      <a href="/focodeathon">← Back to Focodeathon</a>
+      <button class="btn" type="button" onclick="window.print()">Print</button>
+    </div>
+
+    <main class="poster">
+      <div class="titlebar">
+        <span class="dots"><i></i><i></i><i></i></span>
+        <span>player1@fort-collins: ~/focodeathon</span>
+        <span class="hud">1UP&nbsp;&nbsp;HI-SCORE {maxPoints}</span>
+      </div>
+
+      <div class="screen">
+        <div class="formation" aria-hidden="true">
+          {formation.map((f) => <PixelSprite sprite={f.sprite} color={f.color} />)}
+        </div>
+
+        <img class="logo" src="/images/events/focodeathon-orange.svg" alt="Focodeathon" />
+
+        <p class="prompt"><span class="ps1">$</span> ./focodeathon --city "Fort Collins" --players all</p>
+        <h1 class="tagline">Build something in a day.</h1>
+
+        <div class="grid">
+          <section class="panel">
+            <h2>// when &amp; where</h2>
+            <p class="big">{date}</p>
+            <p>{hours}</p>
+            <p class="big">{venue.name}</p>
+            <p>{venue.address}</p>
+          </section>
+
+          <section class="panel">
+            <h2>// schedule</h2>
+            <ul class="log">
+              {
+                schedule.map((s) => (
+                  <li>
+                    <span class="t">[{clock(s.time)}]</span> {s.event.toLowerCase()}
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </div>
+
+        <section class="panel theme">
+          <h2>// theme</h2>
+          <p class="redacted">
+            <span class="label">THEME:</span>
+            <span class="bar" aria-label="hidden">████████████</span>
+          </p>
+          <p class="loading">
+            decrypting at 10:00 … <span class="meter">[█████████░░░]</span> 75%
+          </p>
+          <p class="hint">Bring a laptop, a snack, and your arrow keys.</p>
+        </section>
+
+        <div class="grid">
+          <section class="panel studio">
+            <h2>// presented by</h2>
+            <img src="/images/logo.png" alt="Big Ol’ Bear Studios" />
+          </section>
+
+          <section class="panel">
+            <h2>// scoring (/{maxPoints})</h2>
+            <ul class="score">
+              {
+                judging.map((c) => (
+                  <li>
+                    <span>{c.name}</span>
+                    <span class="pips" style={`--c: ${c.color}`}>
+                      {'■'.repeat(c.total)}
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </div>
+
+        <div class="ground">
+          <div class="player" aria-hidden="true">
+            <PixelSprite sprite={sprites.ship} color="#86DE4A" class="ship" />
+            <p class="press">PRESS START<span class="cursor">█</span></p>
+          </div>
+          {
+            links.map((l) => (
+              <figure class="qr">
+                <img src={l.qr} alt={`QR code for ${l.text}`} />
+                <figcaption>
+                  <span class="qr-label">// {l.label}</span>
+                  {l.text}
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  :root {
+    --term: #0e110d;
+    --term-2: #171b16;
+    --green: #86de4a;
+    --orange: #f26b12;
+    --blue: #5e8ef7;
+    --dim: #8a9a86;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --arcade: 'Press Start 2P', var(--mono);
+  }
+  body {
+    background: var(--paper-2);
+  }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(100% - 2rem, 8.5in);
+    margin: 1.5rem auto 1rem;
+  }
+
+  /* The poster is drawn at real letter size so screen and print match. */
+  .poster {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto 3rem;
+    padding: 0.35in;
+    background: #fff;
+    box-shadow: 5px 5px 0 var(--ink);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--mono);
+    color: #e8efe4;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.9rem;
+    background: #2a2f29;
+    border: 3px solid var(--ink);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    font-size: 0.8rem;
+    color: #c9d3c5;
+  }
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dots i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--orange);
+  }
+  .dots i:nth-child(2) {
+    background: #ffae45;
+  }
+  .dots i:nth-child(3) {
+    background: var(--green);
+  }
+  .hud {
+    font-family: var(--arcade);
+    font-size: 0.6rem;
+    color: var(--green);
+  }
+  .screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.18in;
+    padding: 0.25in 0.35in 0.2in;
+    background:
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px),
+      var(--term);
+    border: 3px solid var(--ink);
+    border-radius: 0 0 12px 12px;
+  }
+  .formation {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.35in;
+  }
+  .logo {
+    width: 5in;
+    margin: 0 auto;
+  }
+  .prompt {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--dim);
+  }
+  .ps1 {
+    color: var(--green);
+    font-weight: 700;
+  }
+  .tagline {
+    margin: -0.08in 0 0;
+    font-family: var(--arcade);
+    font-size: 0.25in;
+    line-height: 1.45;
+    color: #fff;
+    text-shadow: 3px 3px 0 var(--orange);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.2in;
+  }
+  .panel {
+    border: 2px solid #2f382d;
+    border-radius: 6px;
+    padding: 0.14in 0.18in;
+    background: var(--term-2);
+    font-size: 0.76rem;
+    line-height: 1.42;
+  }
+  .panel h2 {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--dim);
+    margin: 0 0 0.35rem;
+  }
+  .panel p {
+    margin: 0;
+  }
+  .big {
+    font-weight: 700;
+    color: var(--orange);
+    font-size: 0.95rem;
+  }
+  .big + p {
+    margin-bottom: 0.4rem;
+  }
+  .log,
+  .score {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .t {
+    color: var(--blue);
+  }
+  .score li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+  .pips {
+    color: var(--c);
+    filter: brightness(1.6);
+    letter-spacing: 0.08em;
+  }
+  .studio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .studio h2 {
+    align-self: flex-start;
+  }
+  /* The studio logo is black line art; flip it to white for the dark screen. */
+  .studio img {
+    width: 1.9in;
+    filter: invert(1);
+  }
+  .theme {
+    text-align: center;
+    border-color: var(--orange);
+    border-style: dashed;
+  }
+  .redacted {
+    font-family: var(--arcade);
+    font-size: 0.21in;
+    line-height: 1.5;
+  }
+  .label {
+    color: var(--orange);
+  }
+  .bar {
+    color: #3b4538;
+  }
+  .loading {
+    color: var(--dim);
+  }
+  .meter {
+    color: var(--green);
+  }
+  .hint {
+    margin-top: 0.3rem !important;
+    color: #fff;
+    font-weight: 700;
+  }
+  .ground {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: end;
+    gap: 0.3in;
+    padding-top: 0.15in;
+    border-top: 2px solid var(--green);
+  }
+  .player {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.18in;
+  }
+  .press {
+    margin: 0;
+    white-space: nowrap;
+    font-family: var(--arcade);
+    font-size: 0.16in;
+    color: var(--green);
+  }
+  .cursor {
+    animation: blink 1s steps(1) infinite;
+  }
+  .qr {
+    margin: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.12in;
+  }
+  /* White tile with a quiet zone so phones can scan it off a dark poster. */
+  .qr img {
+    width: 0.95in;
+    height: 0.95in;
+    padding: 0.04in;
+    background: #fff;
+    border-radius: 4px;
+  }
+  .qr figcaption {
+    display: flex;
+    flex-direction: column;
+    max-width: 1.2in;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    color: #e8efe4;
+    overflow-wrap: anywhere;
+  }
+  .qr-label {
+    color: var(--dim);
+    font-weight: 700;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Real margins (most printers can't print edge-to-edge anyway) and a
+     poster a little shorter than the printable area, so nothing spills
+     onto a second page. */
+  @page {
+    size: letter;
+    margin: 0.3in;
+  }
+  @media print {
+    html,
+    body {
+      margin: 0;
+      background: #fff;
+      display: block;
+      min-height: 0;
+      height: auto;
+    }
+    .toolbar {
+      display: none;
+    }
+    .poster {
+      width: 100%;
+      height: 10.25in;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      break-inside: avoid;
+      box-shadow: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .cursor {
+      animation: none;
+    }
+  }
+</style>
