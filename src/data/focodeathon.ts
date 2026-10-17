@@ -2,7 +2,7 @@
 // home page teaser, and the printable scoresheet so they never drift apart.
 
 export const edition = 1;
-export const date = 'Saturday, January 16, 2027';
+export const date = 'Saturday, January 23, 2027';
 
 // Only printed on the certificates. The public pages keep it secret
 // ("announced at the event"), so don't use this anywhere visitors can see.
