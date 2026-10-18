@@ -1,0 +1,25 @@
+---
+import type { Sprite } from '../data/sprites';
+
+interface Props {
+  sprite: Sprite;
+  color: string;
+  /** Width of one pixel, in any CSS length unit. */
+  pixel?: string;
+  class?: string;
+}
+
+const { sprite, color, pixel = '0.045in', class: className } = Astro.props;
+const width = sprite[0].length;
+const pixels = sprite.flatMap((row, y) => [...row].flatMap((c, x) => (c === '#' ? [{ x, y }] : [])));
+---
+
+<svg
+  class={className}
+  viewBox={`0 0 ${width} ${sprite.length}`}
+  style={`width: calc(${pixel} * ${width})`}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+>
+  {pixels.map((p) => <rect x={p.x} y={p.y} width="1" height="1" fill={color} />)}
+</svg>
