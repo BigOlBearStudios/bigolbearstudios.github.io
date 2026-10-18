@@ -9,6 +9,7 @@
     "preview": "astro preview --host"
   },
   "dependencies": {
-    "astro": "^7.3.6"
+    "astro": "^7.3.6",
+    "html-to-image": "^1.11.13"
   }
 }

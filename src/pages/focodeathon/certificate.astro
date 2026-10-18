@@ -83,7 +83,14 @@ const formation = [
           ))
         }
       </fieldset>
-      <button class="btn" type="button" onclick="window.print()">Print</button>
+      <label class="toggle">
+        <input type="checkbox" id="hide-theme" />
+        Hide Theme
+      </label>
+      <div class="actions">
+        <button class="btn btn--ghost" type="button" id="copy">Copy image</button>
+        <button class="btn" type="button" onclick="window.print()">Print</button>
+      </div>
     </div>
     <p class="tip">Type the team name right on the certificate, or leave it blank to write in by hand.</p>
 
@@ -128,6 +135,7 @@ const formation = [
           <p class="theme">
             <span class="k">theme:</span>
             <span class="theme-name">{theme}</span>
+            <span class="theme-redacted" aria-label="hidden">████████████</span>
           </p>
           <p><span class="k">venue:</span> {venue.name}</p>
         </div>
@@ -150,8 +158,23 @@ const formation = [
     </main>
 
     <script>
+      import { setupCopyButton } from '../../scripts/copy-image';
+
       const cert = document.querySelector<HTMLElement>('.cert')!;
       const radios = document.querySelectorAll<HTMLInputElement>('input[name="place"]');
+      const fields = document.querySelectorAll<HTMLInputElement>('.field--team');
+
+      // Shrink the team name's font so long names still fit on the line.
+      const measure = document.createElement('canvas').getContext('2d')!;
+      const fit = (field: HTMLInputElement) => {
+        field.style.fontSize = '';
+        const style = getComputedStyle(field);
+        measure.font = `${style.fontSize} ${style.fontFamily}`;
+        const width = measure.measureText(field.value).width;
+        // A little slack for the caret and the copied image's rounding.
+        const room = (field.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)) * 0.97;
+        if (width > room) field.style.fontSize = `${(parseFloat(style.fontSize) * room) / width}px`;
+      };
 
       const show = (place: string) => {
         cert.dataset.place = place;
@@ -159,14 +182,28 @@ const formation = [
         const name = document.querySelector<HTMLInputElement>('.variant:not([hidden]) .field--team')?.value ?? '';
         document.querySelectorAll<HTMLElement>('.variant').forEach((v) => {
           v.hidden = v.dataset.variant !== place;
-          if (!v.hidden) v.querySelector<HTMLInputElement>('.field--team')!.value = name;
+          if (v.hidden) return;
+          const field = v.querySelector<HTMLInputElement>('.field--team')!;
+          field.value = name;
+          fit(field);
         });
         radios.forEach((r) => (r.checked = r.value === place));
       };
 
       radios.forEach((r) => r.addEventListener('change', () => show(r.value)));
+      fields.forEach((f) => f.addEventListener('input', () => fit(f)));
+      // Measurements depend on the pixel font, so refit once it has loaded.
+      document.fonts.ready.then(() => fields.forEach((f) => f.offsetParent && fit(f)));
       const fromUrl = new URLSearchParams(location.search).get('place');
       show(['1', '2', '3'].includes(fromUrl ?? '') ? fromUrl! : 'participation');
+
+      // Redact the theme, e.g. for certificates made before it's announced.
+      const hideTheme = document.querySelector<HTMLInputElement>('#hide-theme')!;
+      const syncTheme = () => cert.classList.toggle('hide-theme', hideTheme.checked);
+      hideTheme.addEventListener('change', syncTheme);
+      syncTheme();
+
+      setupCopyButton(document.querySelector<HTMLButtonElement>('#copy')!, cert);
     </script>
   </body>
 </html>
@@ -193,6 +230,14 @@ const formation = [
     width: min(100% - 2rem, 11in);
     margin: 1.5rem auto 0.5rem;
   }
+  /* Back link on its own line so the controls fit in one row. */
+  .toolbar > a {
+    flex-basis: 100%;
+  }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+  }
   .places {
     display: flex;
     gap: 1rem;
@@ -201,10 +246,12 @@ const formation = [
     padding: 0;
     font-weight: 600;
   }
-  .places label {
+  .places label,
+  .toggle {
     display: flex;
     align-items: center;
     gap: 0.35rem;
+    font-weight: 600;
     cursor: pointer;
   }
   .tip {
@@ -218,6 +265,7 @@ const formation = [
   .cert {
     width: 11in;
     height: 8.5in;
+    flex: none; /* opt out of the global `main { flex: 1 }` */
     margin: 0 auto 3rem;
     padding: 0.3in;
     background: #fff;
@@ -339,8 +387,10 @@ const formation = [
   .field:focus-visible {
     background: rgb(255 255 255 / 0.05);
   }
+  /* Fixed height so shrinking a long team name doesn't shift the layout. */
   .field--team {
     width: 6.5in;
+    height: 0.62in;
     padding: 0.05in 0;
     font-family: var(--arcade);
     font-size: 0.3in;
@@ -369,6 +419,16 @@ const formation = [
   .theme-name {
     color: var(--orange);
     font-weight: 700;
+  }
+  .theme-redacted {
+    display: none;
+    color: #3b4538;
+  }
+  .hide-theme .theme-name {
+    display: none;
+  }
+  .hide-theme .theme-redacted {
+    display: inline;
   }
   .ground {
     margin-top: auto;
@@ -420,6 +480,18 @@ const formation = [
     width: 2.4in;
     border-bottom: 2px solid #c9d3c5;
     height: 0.35in;
+  }
+  /* Freeze the blinking cursor while copying so it's always in the image. */
+  .capturing .cursor {
+    animation: none;
+  }
+  /* Single-line text. The copied image re-lays out text with slightly
+     different rounding, so without this the last word can wrap. */
+  .presented,
+  .details p,
+  .studio,
+  .sign {
+    white-space: nowrap;
   }
   @keyframes blink {
     50% {
